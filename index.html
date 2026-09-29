@@ -2436,13 +2436,32 @@ const Music = (() => {
   const TRACKS = {}, TRACK_FOR = { intro: 'kautilya', hypnotic: 'shiv', shiva: 'shiv', groove: 'aigiri' };
   let curTrack = null, wantMood = null;
   const XF = 1.6; // quick equal-power crossfade, sitar straight into veena
+  /* Phones only let a song start from a tap. Every track gets its own audio element up front,
+     and all of them are "unlocked" during the door tap, so later switches (on scroll) are allowed. */
+  const ELS = {}, KNOWN = [];
+  function elFor(id) { if (!ELS[id]) { const el = new Audio(); el.loop = true; el.preload = 'auto'; el.setAttribute('playsinline', ''); ELS[id] = el; } return ELS[id]; }
+  let silent = null;
+  function silentURL() {
+    if (silent) return silent; const n = 800, b = new ArrayBuffer(44 + n), v = new DataView(b), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    return (silent = URL.createObjectURL(new Blob([b], { type: 'audio/wav' })));
+  }
   function loadTrack(id, url, vol, start = 0) {
+    KNOWN.push(id); const el = elFor(id);
     fetch(url).then(r => r.ok ? r.blob() : Promise.reject(r.status)).then(b => {
-      const el = new Audio(); el.src = URL.createObjectURL(b); el.loop = true; el.preload = 'auto'; el.setAttribute('playsinline', '');
+      el.src = URL.createObjectURL(b);
       TRACKS[id] = { el, vol, gain: null, start, started: false };
       if (ready) wire(id);
       if (wantMood) { const m = wantMood; wantMood = null; setMood(m, true); }
     }).catch(() => { });
+  }
+  function unlock() {
+    KNOWN.forEach(id => {
+      if (id === curTrack) return; const el = elFor(id); if (!el.paused) return;
+      if (!TRACKS[id]) el.src = silentURL(); else wire(id);
+      const p = el.play(); if (p) p.then(() => { if (curTrack !== id) el.pause(); }).catch(() => { });
+    });
   }
   function wire(id) { const t = TRACKS[id]; if (t.gain) return; const src = ac.createMediaElementSource(t.el); t.gain = ac.createGain(); t.gain.gain.value = 0; src.connect(t.gain); t.gain.connect(musicBus); }
   function trackFor(mood) { const want = TRACK_FOR[mood]; return TRACKS[want] ? want : (TRACKS.shiv ? 'shiv' : null); }
@@ -2488,7 +2507,7 @@ const Music = (() => {
     celebrate() { const t = ac.currentTime; [0, 2, 4, 7, 9, 12, 14, 16].forEach((s, i) => bell(t + i * .06, hz(s, 2), sfxBus, .045)); DHOL.D(t + .5, sfxBus, .6); DHOL.clap(t + .5, sfxBus, .6); },
   };
   function sfx(name) { if (ready && on && SFX[name]) try { SFX[name](); } catch (e) { } }
-  return { init, setMood, setOn, sfx, loadTrack, get track() { return curTrack; }, get on() { return on; }, get ready() { return ready; } };
+  return { init, setMood, setOn, sfx, loadTrack, unlock, get track() { return curTrack; }, get on() { return on; }, get ready() { return ready; } };
 })();
 
 /* =====================================================================
@@ -2716,7 +2735,7 @@ function scrollToSec(id) { const el = $('#s-' + id); if (el) film.scrollTo({ top
    ===================================================================== */
 function openDoors() {
   if (opened) return; opened = true;
-  Music.init(); Music.setMood('intro'); Music.setOn(true); syncMusicBtn(); Music.sfx('door');
+  Music.init(); Music.setMood('intro'); Music.setOn(true); Music.unlock(); syncMusicBtn(); Music.sfx('door');
   Stage.restart(); $('#doors').classList.add('open'); $('#s-intro').classList.add('in'); FX.beam(true); setTimeout(() => FX.burst(innerWidth / 2 > 240 ? 240 : innerWidth / 2, innerHeight * .45, 60, 1.6), 500);
   setTimeout(() => { document.body.classList.add('opened'); film.scrollTop = 0; onScroll(); }, 1300);
 }
@@ -2727,6 +2746,7 @@ function openDoors() {
 function syncMusicBtn() { const b = $('#musicBtn'); b.classList.toggle('on', Music.on); b.setAttribute('aria-pressed', String(Music.on)); }
 $('#musicBtn').addEventListener('click', () => {
   if (!Music.ready) { Music.init(); Music.setMood((META[curId] || [])[1] || 'hypnotic'); Music.setOn(true); } else Music.setOn(!Music.on);
+  Music.unlock();
   syncMusicBtn(); toast(Music.on ? 'Music on' : 'Music off');
 });
 let wantMusic = false;
@@ -2889,6 +2909,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
    Boot
    ===================================================================== */
 function boot() {
+  document.addEventListener('pointerup', () => { if (Music.ready) Music.unlock(); }, { passive: true });
   photoImg('couple'); photoImg('hands');
   Music.loadTrack('kautilya', 'music/kautilya.mp3', .8, 0);
   Music.loadTrack('shiv', 'music/shiv.mp3', .8, 8);

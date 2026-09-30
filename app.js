@@ -122,6 +122,7 @@ const ICON = {
   route: SV('0 0 24 24', '<circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 18 H15 A3 3 0 0 0 15 12 H9 A3 3 0 0 1 9 6 H16"/>', 1.6),
   rsvp: SV('0 0 24 24', '<rect x="3.5" y="6" width="17" height="12.5" rx="2"/><path d="M4 7 L12 13 L20 7"/>', 1.6),
   video: SV('0 0 24 24', '<rect x="3" y="6.5" width="13" height="11" rx="2"/><path d="M16 10.5 L21 7.5 V16.5 L16 13.5"/>', 1.6),
+  camera: SV('0 0 24 24', '<path d="M4 8.5 H7.5 L9 6 H15 L16.5 8.5 H20 V18.5 H4 Z"/><circle cx="12" cy="13.2" r="3.3"/>', 1.6),
   film: SV('0 0 24 24', '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9 H20 M4 15 H20 M9 4 V20 M15 4 V20"/>', 1.4),
   down: SV('0 0 24 24', '<path d="M6 9 L12 15 L18 9"/>', 1.8),
   copy: SV('0 0 24 24', '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8 V6 A2 2 0 0 0 14 4 H6 A2 2 0 0 0 4 6 V14 A2 2 0 0 0 6 16 H8"/>', 1.6),
@@ -2017,16 +2018,21 @@ $('#gMinus').onclick = () => { rs.guests = Math.max(1, rs.guests - 1); syncRSVP(
 $('#gPlus').onclick = () => { rs.guests = Math.min(15, rs.guests + 1); syncRSVP(); Music.sfx('tap'); };
 function onVideo(ev) {
   const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!f) return;
-  if (!/^video\//.test(f.type) && !/\.(mp4|mov|webm|m4v|3gp)$/i.test(f.name)) { toast('Please choose a video file'); return; }
+  const isImg = /^image\//.test(f.type) || /\.(jpe?g|png|heic|heif|webp|gif)$/i.test(f.name);
+  const isVid = /^video\//.test(f.type) || /\.(mp4|mov|webm|m4v|3gp)$/i.test(f.name);
+  if (!isImg && !isVid) { toast('Please choose a photo or video'); return; }
   if (rs.video && rs.video.url) URL.revokeObjectURL(rs.video.url);
-  rs.video = { file: f, url: URL.createObjectURL(f), dur: 0 };
-  const v = $('#vPlayer'); v.src = rs.video.url; $('#videoPreview').hidden = false; $('#videoBtns').hidden = true;
-  const mb = f.size < 1048576 ? `${Math.max(1, Math.round(f.size / 1024))} KB` : `${(f.size / 1048576).toFixed(1)} MB`; $('#vInfo').textContent = mb;
-  v.onloadedmetadata = () => { const d = isFinite(v.duration) ? `${Math.round(v.duration)} sec · ` : ''; $('#vInfo').textContent = `${d}${mb}`; const w = $('#vWarn'); w.hidden = !(v.duration > 90); w.textContent = 'This is a little long. Under a minute sends fastest on WhatsApp.'; };
+  rs.video = { file: f, url: URL.createObjectURL(f), kind: isImg ? 'photo' : 'video' };
+  const v = $('#vPlayer'), p = $('#pPlayer'); $('#vWarn').hidden = true;
+  if (isImg) { v.pause(); v.removeAttribute('src'); v.hidden = true; p.src = rs.video.url; p.hidden = false; }
+  else { p.removeAttribute('src'); p.hidden = true; v.src = rs.video.url; v.hidden = false; }
+  $('#videoPreview').hidden = false; $('#videoBtns').hidden = true;
+  const mb = f.size < 1048576 ? `${Math.max(1, Math.round(f.size / 1024))} KB` : `${(f.size / 1048576).toFixed(1)} MB`; $('#vInfo').textContent = (isImg ? 'Photo · ' : '') + mb;
+  if (!isImg) v.onloadedmetadata = () => { const d = isFinite(v.duration) ? `${Math.round(v.duration)} sec · ` : ''; $('#vInfo').textContent = `${d}${mb}`; const w = $('#vWarn'); w.hidden = !(v.duration > 90); w.textContent = 'This is a little long. Under a minute sends fastest on WhatsApp.'; };
   Music.sfx('reveal');
 }
-$('#vRec').addEventListener('change', onVideo); $('#vPick').addEventListener('change', onVideo);
-$('#vRemove').onclick = () => { if (rs.video) URL.revokeObjectURL(rs.video.url); rs.video = null; $('#vPlayer').removeAttribute('src'); $('#videoPreview').hidden = true; $('#videoBtns').hidden = false; };
+['#vRec', '#pRec', '#vPick'].forEach(id => $(id).addEventListener('change', onVideo));
+$('#vRemove').onclick = () => { if (rs.video) URL.revokeObjectURL(rs.video.url); rs.video = null; $('#vPlayer').removeAttribute('src'); $('#pPlayer').removeAttribute('src'); $('#videoPreview').hidden = true; $('#videoBtns').hidden = false; };
 function waLink(text) { return CONFIG.FAMILY_WHATSAPP ? `https://wa.me/${CONFIG.FAMILY_WHATSAPP}?text=${enc(text)}` : `https://wa.me/?text=${enc(text)}`; }
 async function submitRSVP(data) {
   if (CONFIG.RSVP_ENDPOINT && !IN_ARTIFACT) { try { await fetch(CONFIG.RSVP_ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(data) }); return 'sent'; } catch (e) { return 'local'; } }
@@ -2035,26 +2041,30 @@ async function submitRSVP(data) {
 $('#rsvpForm').addEventListener('submit', async ev => {
   ev.preventDefault();
   const name = $('#rName').value.trim(); if (!name) { $('#rName').focus(); toast('Please add your name'); return; }
-  const data = { name, attending: rs.attending, guests: rs.attending ? rs.guests : 0, message: $('#rMsg').value.trim(), video: !!rs.video, at: new Date().toISOString() };
+  const data = { name, attending: rs.attending, guests: rs.attending ? rs.guests : 0, message: $('#rMsg').value.trim(), video: rs.video ? rs.video.kind : '', at: new Date().toISOString() };
   store.set('mp_rsvp', JSON.stringify(data));
   const status = await submitRSVP(data);
-  const text = `🪔 RSVP · Mangal Parinay\nDr. Kuber & Dr. Rishita · 21 Nov 2026\n\nName: ${data.name}\nAttending: ${data.attending ? 'Yes, with joy' : 'Sadly, no'}${data.attending ? `\nGuests: ${data.guests}` : ''}${data.message ? `\nMessage: ${data.message}` : ''}${data.video ? '\n\n🎥 Sending a video blessing too!' : ''}`;
+  const text = `🪔 RSVP · Mangal Parinay\nDr. Kuber & Dr. Rishita · 21 Nov 2026\n\nName: ${data.name}\nAttending: ${data.attending ? 'Yes, with joy' : 'Sadly, no'}${data.attending ? `\nGuests: ${data.guests}` : ''}${data.message ? `\nMessage: ${data.message}` : ''}${data.video === 'photo' ? '\n\n📸 Sending a photo blessing too!' : data.video ? '\n\n🎥 Sending a video blessing too!' : ''}`;
   renderDone(data, text, status); Confetti.pop(); Music.sfx('celebrate');
 });
 function renderDone(data, text, status) {
-  const d = $('#rsvpDone'), f = escapeHTML(first(data.name));
-  const hasShareFiles = !IN_ARTIFACT && rs.video && navigator.canShare && (() => { try { return navigator.canShare({ files: [rs.video.file] }); } catch (e) { return false; } })();
+  const d = $('#rsvpDone'), f = escapeHTML(first(data.name)), m = rs.video, word = m ? m.kind : '';
+  const hasShareFiles = !IN_ARTIFACT && m && navigator.canShare && (() => { try { return navigator.canShare({ files: [m.file] }); } catch (e) { return false; } })();
+  const fam = !!CONFIG.FAMILY_WHATSAPP;
+  const step1 = m ? `Open WhatsApp with your reply written${fam ? ' in the family chat' : ''}. Tap send.` : (status === 'sent' ? 'Want to send a note on WhatsApp too? It opens with your reply written.' : 'WhatsApp opens with your reply written. Just tap send.');
+  const step2 = hasShareFiles ? `Then share your ${word}: choose WhatsApp and pick the family chat.` : `Then save your ${word} and attach it in the same chat with the 📎 button.`;
   d.innerHTML = `
     <div class="ev-motif" style="width:48px;height:48px;color:var(--mocha)" data-mo="kalash"></div>
     <div class="script" style="font-size:42px;color:var(--mocha)">${data.attending ? 'Thank you, ' + f + '!' : 'We will miss you, ' + f}</div>
     <p class="lede">${status === 'sent' ? 'Your reply has reached the family. We can’t wait to see you.' : 'Your reply is ready. Send it to the family on WhatsApp to confirm.'}</p>
     <div class="done-steps">
-      <div class="done-step"><div><p>${status === 'sent' ? 'Want to send a note on WhatsApp too? It opens with your reply written.' : 'WhatsApp opens with your reply written. Just tap send.'}</p><a class="btn btn-wa btn-wide" href="${waLink(text)}" target="_blank" rel="noopener"><span data-ic="wa"></span>Send on WhatsApp</a></div></div>
-      ${rs.video ? `<div class="done-step"><div><p>${hasShareFiles ? 'Share your video blessing straight to WhatsApp.' : 'Save your video blessing, then attach it in the same WhatsApp chat.'}</p>
-        <button class="btn btn-line btn-wide" id="vSend" type="button"><span data-ic="${hasShareFiles ? 'share' : 'save'}"></span>${hasShareFiles ? 'Share video' : 'Save video to phone'}</button>
-        <p class="note" id="vSendNote" style="margin-top:8px">Or record it inside WhatsApp: open the chat and hold the camera button.</p></div></div>` : ''}
+      <div class="done-step"><div><p>${step1}</p><a class="btn btn-wa btn-wide" href="${waLink(text)}" target="_blank" rel="noopener"><span data-ic="wa"></span>${m ? 'Open WhatsApp' : 'Send on WhatsApp'}</a></div></div>
+      ${m ? `<div class="done-step"><div><p>${step2}</p>
+        <button class="btn btn-line btn-wide" id="vSend" type="button"><span data-ic="${hasShareFiles ? 'share' : 'save'}"></span>${hasShareFiles ? 'Share ' + word + ' on WhatsApp' : 'Save ' + word}</button>
+        ${hasShareFiles ? '' : `<a class="btn btn-wa btn-wide" style="margin-top:10px" href="${waLink(`${word === 'photo' ? '📸' : '🎥'} My ${word} blessing for Dr. Kuber & Dr. Rishita`)}" target="_blank" rel="noopener"><span data-ic="wa"></span>Open chat to attach</a>`}
+        <p class="note" id="vSendNote" style="margin-top:8px"></p></div></div>` : ''}
     </div>
-    ${CONFIG.FAMILY_WHATSAPP ? '' : '<p class="note">WhatsApp will ask you to pick the family contact.</p>'}
+    ${fam ? '' : '<p class="note">WhatsApp will ask you to pick the family contact.</p>'}
     <button class="btn btn-line btn-wide" id="rsvpEdit" type="button">Edit reply</button>`;
   fillIcons(d); $('#rsvpPanel').hidden = true; d.hidden = false; d.scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('#rsvpEdit').onclick = () => { d.hidden = true; $('#rsvpPanel').hidden = false; };
@@ -2062,17 +2072,18 @@ function renderDone(data, text, status) {
 }
 async function sendVideo(canShare) {
   const v = rs.video; if (!v) return;
-  const ext = /webm/.test(v.file.type) ? 'webm' : 'mp4';
+  const word = v.kind, t = v.file.type || (word === 'photo' ? 'image/jpeg' : 'video/mp4');
+  const ext = (v.file.name.match(/\.([A-Za-z0-9]+)$/) || [])[1] || (word === 'photo' ? 'jpg' : /webm/.test(t) ? 'webm' : 'mp4');
   const filename = `Blessing-for-Kuber-and-Rishita-${(first($('#rName').value) || 'guest').replace(/[^A-Za-z0-9]/g, '')}.${ext}`;
-  if (canShare) { try { await navigator.share({ files: [new File([v.file], filename, { type: v.file.type || 'video/mp4' })], text: 'A video blessing for Dr. Kuber & Dr. Rishita 🪔' }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  if (canShare) { try { await navigator.share({ files: [new File([v.file], filename, { type: t })], text: `A ${word} blessing for Dr. Kuber & Dr. Rishita 🪔` }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
   if (IN_ARTIFACT) {
     const dl = await window.claude.use('downloads').catch(() => null);
-    if (!dl) { $('#vSendNote').textContent = 'Saving is not available in this viewer. Please record your blessing inside WhatsApp: open the chat and hold the camera button.'; return; }
-    try { await dl.save({ filename, data: v.file }); toast('Video saved. Now attach it in WhatsApp.'); }
-    catch (e) { if (e && e.code !== 'declined') $('#vSendNote').textContent = 'That video could not be saved here. Please record your blessing inside WhatsApp instead.'; }
+    if (!dl) { $('#vSendNote').textContent = `Saving is not available in this viewer. Please send your ${word} from WhatsApp directly.`; return; }
+    try { await dl.save({ filename, data: v.file }); toast(`Saved. Now attach it in WhatsApp.`); }
+    catch (e) { if (e && e.code !== 'declined') $('#vSendNote').textContent = `That ${word} could not be saved here. Please send it from WhatsApp directly.`; }
     return;
   }
-  const a = document.createElement('a'); a.href = v.url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); toast('Video saved. Now attach it in WhatsApp.');
+  const a = document.createElement('a'); a.href = v.url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); toast('Saved. Now attach it in WhatsApp.');
 }
 
 /* =====================================================================

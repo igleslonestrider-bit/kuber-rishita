@@ -305,7 +305,8 @@ a{color:inherit}
 .stepper.dis{opacity:.4;pointer-events:none}
 .video-box{border:1px dashed var(--gold);border-radius:16px;padding:16px;background:var(--field-bg);display:flex;flex-direction:column;gap:12px}
 .video-box p{margin:0;font-style:italic;font-size:17px;color:var(--ink-soft);text-align:center;line-height:1.35}
-.video-box video{width:100%;max-height:300px;border-radius:12px;background:#000}
+.video-box video,.video-box img{width:100%;max-height:300px;border-radius:12px;background:#000;object-fit:contain}
+.video-box .btn-row{grid-template-columns:1fr 1fr 1fr;gap:8px}.video-box .btn-row .btn{display:flex;align-items:center;justify-content:center;padding-left:6px;padding-right:6px;gap:6px;letter-spacing:.14em}.video-box .btn-row .btn span[data-ic]{display:inline-flex;line-height:0}
 .video-meta{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-ui);font-size:12px;color:var(--ink-soft);gap:8px}
 .video-meta button{color:#9a3b2a;font-family:var(--f-ui);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
 .warn{font-family:var(--f-ui);font-size:12px;color:#8a4a1f;text-align:center}

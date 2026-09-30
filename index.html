@@ -17,7 +17,7 @@
 <meta name="description" content="Mangal Parinay · Dr. Kuber & Dr. Rishita · Raipur">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Great+Vibes&family=Jost:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap">
-<link rel="stylesheet" href="style.css?v=33654156">
+<link rel="stylesheet" href="style.css?v=72284484">
 </head><body>
 <div id="app">
   <canvas id="stage" aria-hidden="true"></canvas>
@@ -147,12 +147,12 @@
             <div class="field"><span class="lbl" id="cntLbl">Number of guests</span>
               <div class="stepper" id="stepper" role="group" aria-labelledby="cntLbl"><button type="button" id="gMinus" aria-label="Fewer guests">−</button><output id="gCount" aria-live="polite">1<small>guest</small></output><button type="button" id="gPlus" aria-label="More guests">+</button></div></div>
             <div class="field"><label for="rMsg">Message <span style="opacity:.6">(optional)</span></label><textarea id="rMsg" maxlength="600" placeholder="A few words for the couple…"></textarea></div>
-            <div class="field"><span class="lbl">Video blessing <span style="opacity:.6">(optional)</span></span>
+            <div class="field"><span class="lbl">Photo or video blessing <span style="opacity:.6">(optional)</span></span>
               <div class="video-box" id="videoBox">
-                <p>Record a short blessing for the couple. Under a minute is perfect.</p>
-                <div class="btn-row" id="videoBtns"><label class="btn btn-line" for="vRec"><span data-ic="video"></span>Record</label><label class="btn btn-line" for="vPick"><span data-ic="film"></span>Choose</label></div>
-                <input class="sr" type="file" id="vRec" accept="video/*" capture="user"><input class="sr" type="file" id="vPick" accept="video/*">
-                <div id="videoPreview" hidden><video id="vPlayer" playsinline controls preload="metadata"></video><div class="video-meta"><span id="vInfo"></span><button type="button" id="vRemove">Remove</button></div><p class="warn" id="vWarn" hidden></p></div>
+                <p>Send the couple a blessing: a short video or a photo.</p>
+                <div class="btn-row" id="videoBtns"><label class="btn btn-line" for="vRec"><span data-ic="video"></span>Video</label><label class="btn btn-line" for="pRec"><span data-ic="camera"></span>Photo</label><label class="btn btn-line" for="vPick"><span data-ic="film"></span>Choose</label></div>
+                <input class="sr" type="file" id="vRec" accept="video/*" capture="user"><input class="sr" type="file" id="pRec" accept="image/*" capture="user"><input class="sr" type="file" id="vPick" accept="image/*,video/*">
+                <div id="videoPreview" hidden><video id="vPlayer" playsinline controls preload="metadata" hidden></video><img id="pPlayer" alt="Your photo blessing" hidden><div class="video-meta"><span id="vInfo"></span><button type="button" id="vRemove">Remove</button></div><p class="warn" id="vWarn" hidden></p></div>
               </div></div>
             <button class="btn btn-gold btn-wide" type="submit">Confirm RSVP</button>
           </form>
@@ -205,5 +205,5 @@
   <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script src="app.js?v=33654156"></script>
+<script src="app.js?v=72284484"></script>
 </body></html>

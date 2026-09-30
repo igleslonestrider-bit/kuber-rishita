@@ -606,6 +606,9 @@ body.opened #s-intro{transform:scale(1.15)}
 .sec{scroll-snap-stop:always}
 .details-sec{scroll-snap-stop:normal}
 
+/* Cinzel has no lowercase: set the "r" of "Dr." in the body serif so it reads Dr., not DR. */
+.lc{font-family:var(--f-body);font-weight:600;font-size:1.14em;letter-spacing:.01em;text-transform:none}
+
 :root{--ivory:#F3EEF7;--pearl:#FBF8FD;--champ:#E4D9EE;--beige:#CDBBDD;--gold:#A58FC0;--gold-deep:#6E568C;--gold-lite:#D7C8E8;--mocha:#6E568C;--caramel:#A58FC0;--rose:#C9A3C0;--blush:#E6DAEF;
   --ink:#2E2340;--ink-soft:#5E4F72;--glass:rgba(251,248,253,.86);--glass-strong:rgba(251,248,253,.94);--hair:rgba(110,86,140,.35);--card-bg:rgba(251,248,253,.9);--field-bg:rgba(255,253,255,.85);
   --btn-text:#FFFFFF;--g1:#C2ADD9;--g2:#8468A8;--g3:#CDBDE0;--note-bg:#FBF8FD;--u1:#FFFFFF;--u2:#ECE3F4}
@@ -658,7 +661,7 @@ body{background:#1b1424}
         <div class="deva om-line rv" style="--d:.2s">॥ ॐ नमः शिवाय ॥</div>
         <div class="script rv" style="--d:.8s;font-size:clamp(50px,15vw,70px)" data-guest-hi>Welcome to<br>our wedding</div>
         <div class="divider light rv-fade" style="--d:1.8s" data-mo="trishul"></div>
-        <h1 class="display shimmer names on-dark rv" style="--d:2.2s">Dr. Kuber<span class="amp">&amp;</span>Dr. Rishita</h1>
+        <h1 class="display shimmer names on-dark rv" style="--d:2.2s">D<span class="lc">r.</span> Kuber<span class="amp">&amp;</span>D<span class="lc">r.</span> Rishita</h1>
         <div class="deva rv" style="--d:3s;font-size:24px;color:#F3D9A6">मंगल परिणय</div>
       </div>
       <div class="scroll-hint rv-fade" style="--d:3.4s"><span>Scroll</span><i></i></div>
@@ -693,8 +696,8 @@ body{background:#1b1424}
       <div class="stack story-pad">
         <div class="eyebrow on-dark-eb rv" style="--d:.2s">Meet the Groom</div>
         <div class="portrait rv" style="--d:.4s" data-portrait="groom"></div>
-        <h2 class="display shimmer names rv" style="--d:1s">Dr. Kuber</h2>
-        <div class="family rv" style="--d:1.5s"><p>Grandson of <b>Late Dr. K. P. Sharma</b></p><p>Son of <b>Dr. Bal Mukund Sharma</b></p></div>
+        <h2 class="display shimmer names rv" style="--d:1s">D<span class="lc">r.</span> Kuber</h2>
+        <div class="family rv" style="--d:1.5s"><p>Grandson of <b>Late Dr. K. P. Sharma</b></p><p>Son of <b>Dr. Balmukund Sharma</b></p></div>
         <div class="script withlove rv" style="--d:2.6s">From Raipur, with love…</div>
       </div>
     </section>
@@ -704,7 +707,7 @@ body{background:#1b1424}
       <div class="stack story-pad">
         <div class="eyebrow on-dark-eb rv" style="--d:.2s">Meet the Bride</div>
         <div class="portrait rv" style="--d:.4s" data-portrait="bride"></div>
-        <h2 class="display shimmer names rv" style="--d:1s">Dr. Rishita</h2>
+        <h2 class="display shimmer names rv" style="--d:1s">D<span class="lc">r.</span> Rishita</h2>
         <div class="family rv" style="--d:1.5s"><p>Granddaughter of <b>Late Shri Bhuja Lal Tripathi</b></p><p>Daughter of <b>Shri Umesh Kumar Tripathi</b></p></div>
         <div class="script withlove rv" style="--d:2.6s">From Prayagraj, with love…</div>
       </div>
@@ -720,7 +723,7 @@ body{background:#1b1424}
           <div class="ganesh" data-mo="ganesha"></div>
           <div class="deva om-line dark">॥ श्री गणेशाय नमः · ॐ नमः शिवाय ॥</div>
           <div class="deva" style="font-size:30px">मंगल परिणय</div>
-          <h1 class="display shimmer names">Dr. Kuber<span class="amp">&amp;</span>Dr. Rishita</h1>
+          <h1 class="display shimmer names">D<span class="lc">r.</span> Kuber<span class="amp">&amp;</span>D<span class="lc">r.</span> Rishita</h1>
           <p class="lede" style="margin-top:2px">Two hearts. Two cities.<br>One beautiful beginning.</p>
           <p class="small-caps" style="color:var(--mocha)">20 &amp; 21 November 2026 · Raipur</p>
           <div class="count mini" aria-hidden="true"><div><b data-cd="d">--</b><span>Days</span></div><div><b data-cd="h">--</b><span>Hrs</span></div><div><b data-cd="m">--</b><span>Min</span></div><div><b data-cd="s">--</b><span>Sec</span></div></div>

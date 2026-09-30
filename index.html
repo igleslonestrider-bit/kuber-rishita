@@ -764,7 +764,7 @@ body{background:#1b1424}
         <div class="plain stack venue-block">
           <div class="eyebrow">The Venue</div>
           <h3 class="display h3">Sibbal Greens &amp; Farms</h3>
-          <p class="addr">Cheri Khedi, Raipur, Chhattisgarh</p>
+          <p class="addr">Serikhedi, Raipur, Chhattisgarh</p>
           <div class="row3">
             <a class="btn btn-line" id="gcal1" target="_blank" rel="noopener"><span data-ic="cal"></span>20 Nov</a>
             <a class="btn btn-line" id="gcal2" target="_blank" rel="noopener"><span data-ic="cal"></span>21 Nov</a>
@@ -2436,7 +2436,7 @@ const Music = (() => {
     while (cur.next < ac.currentTime + .15) { playStep(cur, cur.next); cur.next += cur.sd; }
   }
   /* ---- recorded tracks (the family's own music files) ---- */
-  const TRACKS = {}, TRACK_FOR = { intro: 'kautilya', hypnotic: 'shiv', shiva: 'shiv', groove: 'aigiri' };
+  const TRACKS = {}, TRACK_FOR = { intro: 'kautilya', hypnotic: 'shiv', shiva: 'shiv', groove: 'mashup' };
   let curTrack = null, wantMood = null;
   const XF = 1.6; // quick equal-power crossfade, sitar straight into veena
   /* Phones only let a song start from a tap. Every track gets its own audio element up front,
@@ -2522,7 +2522,7 @@ const CONFIG = {
   RSVP_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzVKPTihNM13DBwehYK6kxznQENro2XON5jabassWQhWcmHiq_41G0QDIW-2vCL2AJY/exec',        // optional Google Apps Script URL (only when self-hosted)
   PHOTOS: (typeof PHOTO_DATA !== 'undefined') ? PHOTO_DATA : {},
   WEDDING_START: '2026-11-21T00:00:00+05:30',
-  VENUE: 'Sibbal Greens & Farms, Cheri Khedi, Raipur, Chhattisgarh, India',
+  VENUE: 'Sibbal Greens & Farms, Serikhedi, Raipur, Chhattisgarh, India',
   INSTAGRAM: 'https://www.instagram.com/kr_verse_',
 };
 const IN_ARTIFACT = !!(window.claude && window.claude.use);
@@ -2916,7 +2916,7 @@ function boot() {
   photoImg('couple'); photoImg('hands');
   Music.loadTrack('kautilya', 'music/kautilya.mp3', .8, 0);
   Music.loadTrack('shiv', 'music/shiv.mp3', .8, 8);
-  Music.loadTrack('aigiri', 'music/aigiri.mp3', .62, 15.5);
+  Music.loadTrack('mashup', 'music/mashup.mp3', .95, 0);
   document.documentElement.style.setProperty('--pattern', patternURI(THEME.pattern, THEME.patternOp || .07));
   buildEvents();
   $$('[data-portrait]').forEach(el => el.innerHTML = portraitHTML(el.dataset.portrait));

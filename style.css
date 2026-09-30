@@ -593,6 +593,7 @@ body.opened #s-intro{transform:scale(1.15)}
 
 /* Cinzel has no lowercase: set the "r" of "Dr." in the body serif so it reads Dr., not DR. */
 .lc{font-family:var(--f-body);font-weight:600;font-size:1.14em;letter-spacing:.01em;text-transform:none}
+.insta-line a{display:inline-flex;align-items:center;gap:5px;color:var(--mocha);font-weight:600;text-decoration:none;border-bottom:1px solid currentColor;white-space:nowrap}.insta-line svg{width:15px;height:15px}
 
 :root{--ivory:#F3EEF7;--pearl:#FBF8FD;--champ:#E4D9EE;--beige:#CDBBDD;--gold:#A58FC0;--gold-deep:#6E568C;--gold-lite:#D7C8E8;--mocha:#6E568C;--caramel:#A58FC0;--rose:#C9A3C0;--blush:#E6DAEF;
   --ink:#2E2340;--ink-soft:#5E4F72;--glass:rgba(251,248,253,.86);--glass-strong:rgba(251,248,253,.94);--hair:rgba(110,86,140,.35);--card-bg:rgba(251,248,253,.9);--field-bg:rgba(255,253,255,.85);

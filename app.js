@@ -1710,7 +1710,7 @@ const Music = (() => {
    ===================================================================== */
 const CONFIG = {
   SHARE_URL: 'https://igleslonestrider-bit.github.io/kuber-rishita/', // public link to this invitation
-  FAMILY_WHATSAPP: '',      // family WhatsApp number with country code, digits only, e.g. '919876543210'
+  FAMILY_WHATSAPP: '917697614561',      // family WhatsApp number with country code, digits only, e.g. '919876543210'
   RSVP_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzVKPTihNM13DBwehYK6kxznQENro2XON5jabassWQhWcmHiq_41G0QDIW-2vCL2AJY/exec',        // optional Google Apps Script URL (only when self-hosted)
   PHOTOS: (typeof PHOTO_DATA !== 'undefined') ? PHOTO_DATA : {},
   WEDDING_START: '2026-11-21T00:00:00+05:30',
